@@ -1,0 +1,28 @@
+Source: libsf-common
+Section: libs
+Priority: extra
+Maintainer: Jonghoon Han <jonghoon.han@samsung.com>, JuHyun Kim <jh8212.kim@samsung.com>, Taesoo Jun <steve.jun@samsung.com>
+Build-Depends: debhelper (>= 5), autotools-dev , dlog-dev, libattr1-dev
+Standards-Version: 0.0.1
+Homepage: N/A
+
+Package: libsf-common-dev
+XB-Public-Package: no
+Section: libs
+Architecture: any
+Depends: libsf-common-0 (= ${Source-Version})
+Description: Sensor framework common library
+
+Package: libsf-common-0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Sensor framework common library
+  Common library, only used for the sensor framework server & client
+
+Package: libsf-common-dbg
+Section: debug
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libsf-common-0(= ${Source-Version})
+Description:Sensor framework common library(unstripped)
+ Easy Sensor framework common library for SLP(not recommended)
