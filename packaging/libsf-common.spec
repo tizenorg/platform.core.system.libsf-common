@@ -3,10 +3,11 @@ Summary:    Commonly used code and defintions for the sensor framework
 Version:    0.3.6
 Release:    1
 Group:      TO_BE/FILLED_IN
-License:    TO BE FILLED IN
-Source0:    libsf-common-%{version}.tar.bz2
+License:    Apache-2.0
+Source0:    libsf-common-%{version}.tar.gz
 BuildRequires:  cmake
 BuildRequires:  pkgconfig(dlog)
+BuildRequires:  libattr-devel
 
 
 %description
@@ -35,7 +36,6 @@ cmake . -DCMAKE_INSTALL_PREFIX=%{_prefix}
 make %{?jobs:-j%jobs}
 
 %install
-rm -rf %{buildroot}
 %make_install
 
 %files
