@@ -5,9 +5,8 @@ Release:    1
 Group:      TO_BE/FILLED_IN
 License:    Apache-2.0
 Source0:    libsf-common-%{version}.tar.gz
-BuildRequires:  cmake
+BuildRequires:  cmake, libattr-devel
 BuildRequires:  pkgconfig(dlog)
-BuildRequires:  libattr-devel
 
 
 %description
@@ -36,6 +35,7 @@ cmake . -DCMAKE_INSTALL_PREFIX=%{_prefix}
 make %{?jobs:-j%jobs}
 
 %install
+rm -rf %{buildroot}
 %make_install
 
 %files
