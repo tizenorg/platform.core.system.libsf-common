@@ -5,6 +5,7 @@ Release:    1
 Group:      TO_BE/FILLED_IN
 License:    Apache-2.0
 Source0:    libsf-common-%{version}.tar.gz
+Source1001: packaging/libsf-common.manifest 
 BuildRequires:  cmake, libattr-devel
 BuildRequires:  pkgconfig(dlog)
 
@@ -29,6 +30,7 @@ Sensor framework common library
 
 
 %build
+cp %{SOURCE1001} .
 cmake . -DCMAKE_INSTALL_PREFIX=%{_prefix}
 
 
@@ -39,9 +41,11 @@ rm -rf %{buildroot}
 %make_install
 
 %files
+%manifest libsf-common.manifest
 %{_libdir}/libsf_common.so
 
 
 %files devel
+%manifest libsf-common.manifest
 %{_includedir}/sf_common/*.h
 %{_libdir}/pkgconfig/sf_common.pc
