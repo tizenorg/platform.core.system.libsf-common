@@ -1,11 +1,11 @@
+#sbs-git:slp/pkgs/l/libsf-common libsf-common 0.3.6 07588b34636f76e6457efb6d65e9318513c5957c
 Name:       libsf-common
 Summary:    Commonly used code and defintions for the sensor framework
-Version:    0.3.6
+Version: 0.3.8
 Release:    1
 Group:      TO_BE/FILLED_IN
-License:    Apache-2.0
+License:    TO BE FILLED IN
 Source0:    libsf-common-%{version}.tar.gz
-Source1001: packaging/libsf-common.manifest 
 BuildRequires:  cmake, libattr-devel
 BuildRequires:  pkgconfig(dlog)
 
@@ -30,7 +30,6 @@ Sensor framework common library
 
 
 %build
-cp %{SOURCE1001} .
 cmake . -DCMAKE_INSTALL_PREFIX=%{_prefix}
 
 
@@ -41,11 +40,9 @@ rm -rf %{buildroot}
 %make_install
 
 %files
-%manifest libsf-common.manifest
 %{_libdir}/libsf_common.so
 
 
 %files devel
-%manifest libsf-common.manifest
 %{_includedir}/sf_common/*.h
 %{_libdir}/pkgconfig/sf_common.pc

@@ -428,6 +428,7 @@ bool csock::recv(void *buffer, int size)
 	ssize_t recv_size;
 	int total_recv_size = 0;
 
+	DBG("Recv message : data size is %d\n", size);
 	if (m_handle < 0) {
 		ERR("Invalid handle\n");
 		return false;
@@ -456,8 +457,8 @@ bool csock::recv(void *buffer, int size)
 		DBG("recvfrom %s\n", (char*)buffer);
 	} else {
 		do {
-			recv_size = read(m_handle,
-					(char*)buffer + total_recv_size, size - total_recv_size);
+			recv_size = ::recv(m_handle, (char*)buffer + total_recv_size, size - total_recv_size, MSG_NOSIGNAL);
+
 			if (recv_size <= 0) {
 				ERR("Error recv_size check fail , recv_size : %d\n",recv_size);
 				close(m_handle);
@@ -520,7 +521,7 @@ bool csock::send(void *buffer, int size)
 	} else if (m_mode & SOCK_TCP) {
 		DBG("TCP send enabled\n");
 
-		send_size = write(m_handle, buffer, size);
+		send_size = ::send(m_handle, buffer, size, MSG_NOSIGNAL);
 		if (send_size <= 0) {
 			ERR("Error send_size check fail , send_size : %d\n",send_size);
 			close(m_handle);

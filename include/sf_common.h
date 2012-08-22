@@ -29,7 +29,7 @@
 #include <cpacket.h>
 #include <csock.h>
 
-#define DEFAULT_SENSOR_KEY_PREFIX		"memory/sensor/"
+#define DEFAULT_SENSOR_KEY_PREFIX		"memory/private/sensor/"
 #define MAX_KEY_LEN		30
 #define MAX_DATA_STREAM_SIZE	(sizeof(cmd_get_struct_t) + sizeof(base_data_struct) + 8)	/*always check this size when a new cmd_type struct added*/
 #define MAX_VALUE_SIZE 12
@@ -61,21 +61,25 @@ enum data_unit_idx_t {
 	IDX_UNIT_LEVEL_1_TO_10,
 	IDX_UNIT_STATE_ON_OFF,
 	IDX_UNIT_DEGREE_PER_SECOND,
+	IDX_UNIT_HECTOPASCAL,
+	IDX_UNIT_CELSIUS,
+	IDX_UNIT_METER,
 	
 	IDX_UNIT_VENDOR_UNIT = 100,
 	IDX_UNIT_FILTER_CONVERTED,
 };
 
 enum sensor_id_t{
-	ID_UNKNOWN		= 0x0000,
-	ID_ACCEL		= 0x0001,
-	ID_GEOMAG		= 0x0002,
-	ID_LUMINANT		= 0x0004,	
-	ID_PROXI		= 0x0008,
-	ID_THERMER		= 0x0010,	
+	ID_UNKNOWN			= 0x0000,
+	ID_ACCEL			= 0x0001,
+	ID_GEOMAG			= 0x0002,
+	ID_LUMINANT			= 0x0004,	
+	ID_PROXI			= 0x0008,
+	ID_THERMER			= 0x0010,	
 	ID_GYROSCOPE		= 0x0020,
-	ID_PRESSURE		= 0x0040,
+	ID_PRESSURE			= 0x0040,
 	ID_MOTION_ENGINE	= 0x0080,
+	ID_FUSION			= 0x0100,
 };
 
 enum packet_type_t {
@@ -102,6 +106,7 @@ enum reg_type_t {
 	REG_ADD 	= 0x01,
 	REG_DEL	= 0x02,
 	REG_CHK	= 0x03,
+	REG_CHG = 0x04,
 };
 
 
