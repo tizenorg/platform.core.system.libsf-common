@@ -49,7 +49,8 @@
 
 
 extern int errno;
-
+const int MAX_CONNECT = 10;
+const int DELAY_FOR_CONNECT = 10000;
 
 
 csock::csock(int handle, int mode)
@@ -85,6 +86,7 @@ csock::csock(char *name, int mode, int port, int server)
 	int domain;
 	int type;
 	sockaddr *sock_ptr = NULL;
+        struct timeval tv;
 
 	m_start=NULL;
 	m_running=NULL;
@@ -212,6 +214,14 @@ csock::csock(char *name, int mode, int port, int server)
 			}
 		}
 	}
+	else
+	{
+		tv.tv_sec = 3;
+		tv.tv_usec = 0;
+
+		if( setsockopt(m_handle, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) != 0)
+			ERR("setsockopt fail");
+	}
 }
 
 
@@ -248,6 +258,7 @@ void *csock::client_ctx(void)
 bool csock::connect_to_server(void)
 {
 	int type = (m_mode & SOCK_UDP) ? SOCK_DGRAM : SOCK_STREAM;
+	int i = 0;
 
 	if (type == SOCK_STREAM) {
 		int len;
@@ -261,12 +272,23 @@ bool csock::connect_to_server(void)
 			sock_ptr = (struct sockaddr*)&m_addr;
 		}
 
-		if (connect(m_handle, sock_ptr, len) < 0) {
-			ERR("connect fail , m_handle : %d , sock_ptr : %p , len : %d ,%s\n",m_handle , sock_ptr , len, strerror(errno));
-			close(m_handle);
-			m_handle = -1;
-			return false;
+		for(i = 0 ; i < MAX_CONNECT ; i++)
+		{
+			if (connect(m_handle, sock_ptr, len) == 0)
+			{
+				return true;
+			}
+			else
+			{
+				DBG("wait for accept worker");
+				usleep(DELAY_FOR_CONNECT);
+			}
 		}
+
+		ERR("connect fail , m_handle : %d , sock_ptr : %p , len : %d ,%s\n",m_handle , sock_ptr , len, strerror(errno));
+		close(m_handle);
+		m_handle = -1;
+		return false;
 	}
 
 	return true;
@@ -428,6 +450,7 @@ bool csock::recv(void *buffer, int size)
 	ssize_t recv_size;
 	int total_recv_size = 0;
 
+	DBG("Recv message : data size is %d\n", size);
 	if (m_handle < 0) {
 		ERR("Invalid handle\n");
 		return false;
@@ -436,6 +459,12 @@ bool csock::recv(void *buffer, int size)
 	if (size == 0) {
 		DBG("Try to read ZERO, just return true\n");
 		return true;
+	}
+
+	if (size < 0)
+	{
+		ERR("invalid size of packet");
+		return false;
 	}
 
 	if (m_mode & SOCK_UDP) {
@@ -456,8 +485,8 @@ bool csock::recv(void *buffer, int size)
 		DBG("recvfrom %s\n", (char*)buffer);
 	} else {
 		do {
-			recv_size = read(m_handle,
-					(char*)buffer + total_recv_size, size - total_recv_size);
+			recv_size = ::recv(m_handle, (char*)buffer + total_recv_size, size - total_recv_size, MSG_NOSIGNAL |MSG_WAITALL);
+
 			if (recv_size <= 0) {
 				ERR("Error recv_size check fail , recv_size : %d\n",recv_size);
 				close(m_handle);
@@ -487,6 +516,12 @@ bool csock::send(void *buffer, int size)
 	DBG("Send message : data size is %d\n", size);
 	if (size == 0) {
 		return true;
+	}
+	
+	if (size < 0)
+	{
+		ERR("invalid size of packet");
+		return false;
 	}
 
 	if (m_handle < 0) {
@@ -520,7 +555,7 @@ bool csock::send(void *buffer, int size)
 	} else if (m_mode & SOCK_TCP) {
 		DBG("TCP send enabled\n");
 
-		send_size = write(m_handle, buffer, size);
+		send_size = ::send(m_handle, buffer, size, MSG_NOSIGNAL);
 		if (send_size <= 0) {
 			ERR("Error send_size check fail , send_size : %d\n",send_size);
 			close(m_handle);

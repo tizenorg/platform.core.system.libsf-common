@@ -297,38 +297,12 @@ bool ccatalog::unload(void)
 }
 
 
+
 char *ccatalog::value(char *group, char *name)
 {
 	group_t *grp;
 
 	grp = m_head;
-	while (grp) {
-		if (!strcmp(group, grp->name)) {
-			break;
-		}
-
-		grp = (group_t*)grp->next();
-	}
-
-	if (grp) {
-		desc_t *desc;
-		desc = grp->head;
-
-		while (desc) {
-			if (!strcmp(name, desc->name)) {
-				return desc->value;
-			}
-			desc = (desc_t*)desc->next();
-		}
-	}
-
-	return NULL;
-}
-
-char *ccatalog::value(char *group, char *name, void *handle)
-{
-	group_t *grp = (group_t*)handle;
-
 	while (grp) {
 		if (!strcmp(group, grp->name)) {
 			break;

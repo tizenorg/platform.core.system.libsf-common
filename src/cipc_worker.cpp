@@ -72,7 +72,7 @@ bool cipc_worker::start(void)
 	m_state = START;
 	pthread_mutex_unlock(&(mutex_lock));
 
-	state = (ipc_worker_state_s)(int)m_func[START](m_context);
+	state = (ipc_worker_state_s)*((int *)m_func[START](m_context));
 	
 	if (state == TERMINATE) {
 		pthread_mutex_lock(&(mutex_lock));
@@ -127,38 +127,35 @@ void *cipc_worker::started(void *data)
 
 	do
 	{
-		state = (ipc_worker_state_s)(int)inst->m_func[STARTED](inst->m_context);
+		state = (ipc_worker_state_s)*((int *)inst->m_func[STARTED](inst->m_context));
 		if(state == TERMINATE)
 		{
 			pthread_mutex_lock(&(inst->mutex_lock));
 			inst->m_state = TERMINATE;
 			pthread_mutex_unlock(&(inst->mutex_lock));
 			inst->m_func[STOP](inst->m_context);
+			delete inst;
 			return NULL;
 		}
 	}while(state == START && inst->m_state == START);
 
 	DBG("\n\n\n############Client worker thread END############\n\n\n");
+	pthread_mutex_lock(&(inst->mutex_lock));
+	inst->m_state = STOPPED;
+	pthread_mutex_unlock(&(inst->mutex_lock));
 
+	delete inst;
 	return NULL;		
 }
 bool cipc_worker::stop(void)
 {
 	ipc_worker_state_s state;
+	
+	state = (ipc_worker_state_s)*((int *)m_func[STOP](m_context));
+
 	pthread_mutex_lock(&(mutex_lock));
-	m_state = STOP;
+	m_state = TERMINATE;
 	pthread_mutex_unlock(&(mutex_lock));
-	DBG("Stop function [Client worker]\n");
-
-	state = (ipc_worker_state_s)(int)m_func[STOP](m_context);
-
-	if (state == TERMINATE) {
-		pthread_mutex_lock(&(mutex_lock));
-		m_state = TERMINATE;
-		pthread_mutex_unlock(&(mutex_lock));
-		delete this;
-		return false;
-	}
 	return true;
 }
 
