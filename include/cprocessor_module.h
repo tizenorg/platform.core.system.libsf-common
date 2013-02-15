@@ -30,6 +30,10 @@ class cprocessor_module : public cmodule
 public:
 	static const int SF_PLUGIN_PROCESSOR = SF_PLUGIN_BASE + 20;
 
+	struct interval_list_t : public clist {
+		unsigned int interval;
+	};
+
 	cprocessor_module();
 	virtual ~cprocessor_module();
 
@@ -59,24 +63,20 @@ public:
 	virtual int get_property(unsigned int property_level , void *property_struct ) = 0;
 	virtual int get_struct_value(unsigned int struct_type , void *struct_values) = 0;
 
+	int add_interval_to_list(int interval, unsigned long polling_interval);
+	int del_interval_to_list(int interval, unsigned long polling_interval);
+	int check_hz(int time_ms);
+	int norm_interval(int time_ms);
+
 	void lock(void);
 	void unlock(void);
 
 protected:
-	struct event_callback_t : public clist
-	{
-		void *(*handler)(cprocessor_module *inst, void *data);
-		void *data;
-		cprocessor_module *inst;
-		bool (*rm_cb_data)(void *data);
-	};
-
-	event_callback_t *m_cb_head;
-	event_callback_t *m_cb_tail;
-
 	cworker *m_worker;
 
 	cmutex m_mutex;
+        interval_list_t *m_interval_list_head;
+        interval_list_t *m_interval_list_tail;
 };
 
 #endif
