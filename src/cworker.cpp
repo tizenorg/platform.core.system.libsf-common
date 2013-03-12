@@ -37,25 +37,44 @@
 #include <cworker.h>
 #include <common.h>
 
-cworker::cworker(void)
-: m_state(STOPPED)
-, m_context(NULL)
-, mutex_lock(PTHREAD_MUTEX_INITIALIZER)
+	cworker::cworker(void)
+	: m_state(INITIAL)
+	, m_context(NULL)
+	, mutex_lock(PTHREAD_MUTEX_INITIALIZER)
+	  , th_cond(PTHREAD_COND_INITIALIZER)
 {
 	register int i;
-
+	int ret;
 	for (i = 0; i < ENUM_LAST; i ++) {
 		m_func[i] = NULL;
 	}
-	
+
+	ret = pthread_mutex_init(&mutex_lock, NULL);
+	if (ret != 0) {
+		ERR("pthread_mutex_init : %s",strerror(errno));
+		throw EINVAL;
+	}
+
+	ret = pthread_cond_init(&th_cond, NULL);
+	if (ret != 0) {
+		ERR("pthread_cond_init : %s",strerror(errno));
+		throw EINVAL;
+	}
 	DBG("processor worker created\n");
 }
 
 cworker::~cworker(void)
 {
 	DBG("----------Processor WORKER TERMINATED--------\n");	
-	
+
+	pthread_mutex_lock(&(mutex_lock));
+
 	m_state = TERMINATE;
+	pthread_cond_signal(&th_cond);
+
+	pthread_mutex_unlock(&(mutex_lock));
+
+	pthread_cond_destroy(&th_cond);
 
 	if (m_func[TERMINATE])
 		m_func[TERMINATE](m_context);
@@ -68,41 +87,41 @@ bool cworker::start(void)
 	int ret = 0;
 
 	pthread_mutex_lock(&(mutex_lock));
-	if (m_state == START) {
+
+	if(m_state == INITIAL)
+	{
+		pthread_mutex_unlock(&(mutex_lock));
+		ret = pthread_create(&m_thid, NULL, started, this);
+
+		if(ret != 0)
+		{
+			pthread_mutex_lock(&(mutex_lock));
+			m_state = INITIAL;
+			pthread_mutex_unlock(&(mutex_lock));
+			ERR("thread create fail\n");
+			return false;
+		}
+		else
+		{
+			pthread_detach(m_thid);
+		}
+
+		pthread_mutex_lock(&(mutex_lock));
+	}
+	else if (m_state == START) {
 		ERR("Already started\n");
 		pthread_mutex_unlock(&(mutex_lock));
 		return false;
 	}
 
+	ret = pthread_cond_signal(&th_cond);
+	if (ret != 0) {
+		ERR("pthread_cond_wait : %s",strerror(errno));
+	}
+
 	m_state = START;
 	pthread_mutex_unlock(&(mutex_lock));
 
-	DBG("cworker start\n");
-
-	ret = pthread_create(&m_thid, NULL, started, this);
-	
-	if(ret != 0)
-	{
-		pthread_mutex_lock(&(mutex_lock));
-		m_state = STOP;
-		pthread_mutex_unlock(&(mutex_lock));
-		ERR("thread create fail\n");
-		return false;
-	}
-	else
-	{
-		ret = pthread_detach(m_thid);
-		if(ret != 0)
-		{
-			ERR("thread detach fail\n");
-			return false;
-		}
-		else
-		{
-			DBG("Thread creation for Processor worker END\n");
-		}
-	}
-	
 	return true;
 }
 
@@ -118,22 +137,17 @@ bool cworker::terminate(void)
 void *cworker::started(void *data)
 {
 	cworker *inst = (cworker*)data;
-	worker_state_s state;
+	worker_state_s state = STOPPED;
 
 	do
 	{
 		state = (worker_state_s)(int)inst->m_func[STARTED](inst->m_context);
-		if (state == STOPPED) {
-			pthread_mutex_lock(&(inst->mutex_lock));
-			inst->m_state = STOP;
-			pthread_mutex_unlock(&(inst->mutex_lock));
-			ERR("Abnormal Situation: processor_plugin->working() returned STOPPED\n");
-			return NULL;
-		}
-	}while(state == STARTED && inst->m_state == START);
 
-	DBG("\n\n\n#############Processor worker thread END###########\n\n\n");
-	
+		if(state == STOPPED || inst->m_state == STOP)
+			inst->stopped();
+
+	}while(state != TERMINATE);
+
 	return NULL;		
 }
 
@@ -145,10 +159,17 @@ bool cworker::stop(void)
 		pthread_mutex_unlock(&(mutex_lock));
 		return false;
 	}
-	
 	m_state = STOP;
 	pthread_mutex_unlock(&(mutex_lock));
-	DBG("Stop function for Processor worker END ");
+
+	return true;
+}
+
+bool cworker::stopped(void)
+{
+	pthread_mutex_lock(&mutex_lock);
+	pthread_cond_wait(&th_cond, &mutex_lock);
+	pthread_mutex_unlock(&mutex_lock);
 	return true;
 }
 

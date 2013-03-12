@@ -44,7 +44,6 @@ public:
 
 	char *value(char *group, char *name);
 	char *value(char *group, char *name, int idx);
-	char *value(char *group, char *name, void *handle);
 	int count_of_values(char *group, char *name);
 
 	void *iterate_init(void);

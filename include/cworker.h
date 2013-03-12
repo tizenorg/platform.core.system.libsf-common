@@ -35,13 +35,15 @@ public:
 		STARTED	= 0x02,
 		STOP	= 0x03,
 		TERMINATE = 0x04,
-		ENUM_LAST = 0x05,
+		INITIAL = 0x05,
+		ENUM_LAST = 0x06,
 	};
 
 	cworker(void);
 
 	bool start(void);
 	bool stop(void);
+	bool stopped(void);
 	bool terminate(void);
 
 	worker_state_s state(void);
@@ -69,6 +71,7 @@ private:
 	static void *started(void *data);
 
 	pthread_mutex_t mutex_lock;
+	pthread_cond_t th_cond;
 };
 
 
