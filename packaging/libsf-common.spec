@@ -1,7 +1,7 @@
 #sbs-git:slp/pkgs/l/libsf-common libsf-common 0.3.6 07588b34636f76e6457efb6d65e9318513c5957c
 Name:       libsf-common
 Summary:    Commonly used code and defintions for the sensor framework
-Version: 0.3.18 
+Version: 0.3.20
 Release:    1
 Group:      TO_BE/FILLED_IN
 License:    Apache 2.0
@@ -39,9 +39,13 @@ make %{?jobs:-j%jobs}
 rm -rf %{buildroot}
 %make_install
 
+mkdir -p %{buildroot}/usr/share/license
+cp LICENSE %{buildroot}/usr/share/license/%{name}
+
 %files
 %manifest libsf-common.manifest
 %{_libdir}/libsf_common.so
+/usr/share/license/%{name}
 
 
 %files devel
