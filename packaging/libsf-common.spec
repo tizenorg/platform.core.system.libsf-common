@@ -1,51 +1,42 @@
-#sbs-git:slp/pkgs/l/libsf-common libsf-common 0.3.6 07588b34636f76e6457efb6d65e9318513c5957c
-Name:       libsf-common
-Summary:    Commonly used code and defintions for the sensor framework
-Version: 0.3.20
-Release:    1
-Group:      TO_BE/FILLED_IN
-License:    Apache 2.0
-Source0:    libsf-common-%{version}.tar.gz
-BuildRequires:  cmake, libattr-devel
+Name:           libsf-common
+Version:        0.3.20
+Release:        1
+License:        Apache-2.0
+Summary:        Sensor framework common library
+Group:          System/Sensor Framework
+Source0:        libsf-common-%{version}.tar.gz
+BuildRequires:  cmake
+BuildRequires:  libattr-devel
 BuildRequires:  pkgconfig(dlog)
-
-
 %description
-Sensor framework common library
-
-
+Commonly used code and defintions for the sensor framework.
 
 %package devel
-Summary:    Sensor framework common (devel)
-Group:      System/Sensor Framework
-Requires:   %{name} = %{version}-%{release}
-Requires:   libsf-common
+Summary:        Sensor framework common - Development
+Group:          Development/Libraries
+Requires:       %{name} = %{version}
 
 %description devel
-Sensor framework common library
-
+Sensor framework common library - Development Files.
 
 %prep
-%setup -q 
-
+%setup -q
 
 %build
-cmake . -DCMAKE_INSTALL_PREFIX=%{_prefix}
+%cmake .
 
-
-make %{?jobs:-j%jobs}
+make %{?_smp_mflags}
 
 %install
-rm -rf %{buildroot}
 %make_install
 
-mkdir -p %{buildroot}/usr/share/license
-cp LICENSE %{buildroot}/usr/share/license/%{name}
+mkdir -p %{buildroot}%{_datadir}/license
+cp LICENSE %{buildroot}%{_datadir}/license/%{name}
 
 %files
 %manifest libsf-common.manifest
 %{_libdir}/libsf_common.so
-/usr/share/license/%{name}
+%{_datadir}/license/%{name}
 
 
 %files devel

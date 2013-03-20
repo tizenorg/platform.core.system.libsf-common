@@ -72,7 +72,7 @@ bool cipc_worker::start(void)
 	m_state = START;
 	pthread_mutex_unlock(&(mutex_lock));
 
-	state = (ipc_worker_state_s)(int)m_func[START](m_context);
+	state = (ipc_worker_state_s)(unsigned long)m_func[START](m_context);
 	
 	if (state == TERMINATE) {
 		pthread_mutex_lock(&(mutex_lock));
@@ -127,7 +127,7 @@ void *cipc_worker::started(void *data)
 
 	do
 	{
-		state = (ipc_worker_state_s)(int)inst->m_func[STARTED](inst->m_context);
+		state = (ipc_worker_state_s)(unsigned long)inst->m_func[STARTED](inst->m_context);
 		if(state == TERMINATE)
 		{
 			pthread_mutex_lock(&(inst->mutex_lock));
@@ -151,7 +151,7 @@ bool cipc_worker::stop(void)
 {
 	ipc_worker_state_s state;
 	
-	state = (ipc_worker_state_s)(int)m_func[STOP](m_context);
+	state = (ipc_worker_state_s)(unsigned long)m_func[STOP](m_context);
 
 	pthread_mutex_lock(&(mutex_lock));
 	m_state = TERMINATE;

@@ -141,7 +141,7 @@ void *cworker::started(void *data)
 
 	do
 	{
-		state = (worker_state_s)(int)inst->m_func[STARTED](inst->m_context);
+		state = (worker_state_s)(unsigned long)inst->m_func[STARTED](inst->m_context);
 
 		if(state == STOPPED || inst->m_state == STOP)
 			inst->stopped();

@@ -3,7 +3,6 @@ project(sf_common CXX)
 # to install pkgconfig setup file.
 SET(PREFIX ${CMAKE_INSTALL_PREFIX})
 SET(EXEC_PREFIX "\${prefix}")
-SET(LIBDIR "\${prefix}/lib")
 SET(INCLUDEDIR "\${prefix}/include")
 SET(VERSION 1.0)
 
@@ -51,8 +50,8 @@ add_library(${PROJECT_NAME} SHARED
 target_link_libraries(${PROJECT_NAME} ${rpkgs_LDFLAGS} "-lrt -ldl")
 configure_file(${PROJECT_NAME}.pc.in ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.pc @ONLY)
 
-install(TARGETS ${PROJECT_NAME} DESTINATION lib)
-install(FILES ${PROJECT_NAME}.pc DESTINATION lib/pkgconfig)
+install(TARGETS ${PROJECT_NAME} DESTINATION ${LIB_INSTALL_DIR})
+install(FILES ${PROJECT_NAME}.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
 install(FILES 
 	include/sf_common.h
 	include/csensor_module.h
