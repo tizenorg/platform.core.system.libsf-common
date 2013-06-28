@@ -5,6 +5,7 @@ License:        Apache-2.0
 Summary:        Sensor framework common library
 Group:          System/Sensor Framework
 Source0:        libsf-common-%{version}.tar.gz
+Source1001: 	libsf-common.manifest
 BuildRequires:  cmake
 BuildRequires:  libattr-devel
 BuildRequires:  pkgconfig(dlog)
@@ -21,6 +22,7 @@ Sensor framework common library - Development Files.
 
 %prep
 %setup -q
+cp %{SOURCE1001} .
 
 %build
 %cmake .
@@ -34,11 +36,12 @@ mkdir -p %{buildroot}%{_datadir}/license
 cp LICENSE %{buildroot}%{_datadir}/license/%{name}
 
 %files
-%manifest libsf-common.manifest
+%manifest %{name}.manifest
 %{_libdir}/libsf_common.so
 %{_datadir}/license/%{name}
 
 
 %files devel
+%manifest %{name}.manifest
 %{_includedir}/sf_common/*.h
 %{_libdir}/pkgconfig/sf_common.pc
