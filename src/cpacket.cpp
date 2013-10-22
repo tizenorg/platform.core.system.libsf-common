@@ -35,7 +35,7 @@
 cpacket::cpacket(int size)
 {
 	char *ptr;
-	
+
 	try {
 		ptr = new char[size + sizeof(packet_t)];
 	} catch (...) {
@@ -72,9 +72,10 @@ void cpacket::set_payload_size(int size)
 {
 	if (!m_packet) {
 		ERR("error m_packet null!!");
-	} else {	
-		m_packet->size = size;
+		return;
 	}
+
+	m_packet->size = size;
 }
 
 
@@ -83,9 +84,10 @@ void cpacket::set_version(int version)
 {
 	if (!m_packet) {
 		ERR("error m_packet null!!");
-	} else {	
-		m_packet->version = version;
+		return;
 	}
+
+	m_packet->version = version;
 }
 
 
@@ -95,9 +97,9 @@ int cpacket::version(void)
 	if (!m_packet) {
 		ERR("error m_packet null!!");
 		return -1;
-	} else {	
-		return m_packet->version;
 	}
+
+	return m_packet->version;
 }
 
 
@@ -106,9 +108,10 @@ void cpacket::set_cmd(int cmd)
 {
 	if (!m_packet) {
 		ERR("error m_packet null!!");
-	} else {	
-		m_packet->cmd = cmd;
+		return;
 	}
+
+	m_packet->cmd = cmd;
 }
 
 
@@ -118,9 +121,9 @@ int cpacket::cmd(void)
 	if (!m_packet) {
 		ERR("error m_packet null!!");
 		return -1;
-	} else {	
-		return m_packet->cmd;
 	}
+
+	return m_packet->cmd;
 }
 
 
@@ -130,14 +133,9 @@ bool cpacket::copy_data(void *data)
 	if ( !m_packet ) {
 		ERR("error m_packet null!!");
 		return false;
-	} else {	
-		if ( !(m_packet->data) ) {
-			ERR("error m_packet->data null!!");
-			return false;
-		} else {	
-			memcpy(m_packet->data, data, m_packet->size);
-		}
 	}
+
+	memcpy(m_packet->data, data, m_packet->size);
 	return true;
 }
 
@@ -148,14 +146,9 @@ void *cpacket::data(void)
 	if ( !m_packet ) {
 		ERR("error m_packet null!!");
 		return NULL;
-	} else {	
-		if ( !(m_packet->data) ) {
-			ERR("error m_packet->data null!!");
-			return NULL;
-		} else {
-			return m_packet->data;
-		}
 	}
+
+	return m_packet->data;
 }
 
 
@@ -179,9 +172,9 @@ int cpacket::size(void)
 	if (!m_packet) {
 		ERR("error m_packet null!!");
 		return -1;
-	} else {	
-		return m_packet->size + sizeof(cpacket::packet_t);
 	}
+
+	return m_packet->size + sizeof(cpacket::packet_t);
 }
 
 
